@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useState } from "react";
+import Image from "next/image";
 import sdk, {
   AddFrame,
   SignIn as SignInCore,
@@ -18,7 +19,7 @@ import { Label } from "~/components/ui/label";
 import { PROJECT_TITLE } from "~/lib/constants";
 
 function SocialLinks() {
-  const { SOCIAL_LINKS } = require("~/lib/constants");
+  import { SOCIAL_LINKS } from "~/lib/constants";
 
   const handleLinkClick = useCallback((url: string) => {
     sdk.actions.openUrl(url);
@@ -49,7 +50,7 @@ function SocialLinks() {
 }
 
 function ImageCarousel() {
-  const { RECENT_IMAGES } = require("~/lib/constants");
+  import { RECENT_IMAGES } from "~/lib/constants";
   const [currentImage, setCurrentImage] = useState(0);
 
   useEffect(() => {
@@ -58,7 +59,7 @@ function ImageCarousel() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [RECENT_IMAGES.length]);
 
   return (
     <Card className="border-neutral-200 bg-white mb-4">
@@ -67,10 +68,12 @@ function ImageCarousel() {
       </CardHeader>
       <CardContent>
         <div className="relative aspect-square overflow-hidden rounded-lg">
-          <img
+          <Image
             src={RECENT_IMAGES[currentImage]}
             alt={`Recent post ${currentImage + 1}`}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            unoptimized // Since these are external images
           />
         </div>
       </CardContent>
