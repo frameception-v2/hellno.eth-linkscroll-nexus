@@ -85,10 +85,7 @@ function ImageCarousel() {
   );
 }
 
-function TwitchEmbed({ notificationsEnabled, toggleNotifications }: {
-  notificationsEnabled: boolean;
-  toggleNotifications: () => void;
-}) {
+function TwitchEmbed() {
   const [showTwitch, setShowTwitch] = useState(false);
   const [isLive, setIsLive] = useState(false);
 
@@ -146,12 +143,6 @@ function TwitchEmbed({ notificationsEnabled, toggleNotifications }: {
             <PurpleButton onClick={() => setShowTwitch(true)}>
               {isLive ? "Watch Live" : "Show Twitch Player"}
             </PurpleButton>
-            <PurpleButton 
-              onClick={toggleNotifications}
-              variant={notificationsEnabled ? "default" : "outline"}
-            >
-              {notificationsEnabled ? "Notifications On" : "Enable Live Alerts"}
-            </PurpleButton>
           </div>
         )}
       </CardContent>
@@ -162,24 +153,6 @@ function TwitchEmbed({ notificationsEnabled, toggleNotifications }: {
 export default function Frame(
   { title }: { title?: string } = { title: PROJECT_TITLE }
 ) {
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-
-  const toggleNotifications = useCallback(async () => {
-    try {
-      if (notificationsEnabled) {
-        await sdk.actions.disableNotifications();
-        setNotificationsEnabled(false);
-      } else {
-        await sdk.actions.enableNotifications({
-          title: "hellno.eth Live Alerts",
-          body: "Get notified when hellno.eth goes live on Twitch"
-        });
-        setNotificationsEnabled(true);
-      }
-    } catch (error) {
-      console.error('Error toggling notifications:', error);
-    }
-  }, [notificationsEnabled]);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<Context.FrameContext>();
 
@@ -231,12 +204,6 @@ export default function Frame(
         setAdded(false);
       });
 
-      sdk.on("notificationsEnabled", ({ notificationDetails }) => {
-        console.log("notificationsEnabled", notificationDetails);
-      });
-      sdk.on("notificationsDisabled", () => {
-        console.log("notificationsDisabled");
-      });
 
       sdk.on("primaryButtonClicked", () => {
         console.log("primaryButtonClicked");
@@ -281,10 +248,7 @@ export default function Frame(
         <h1 className="text-2xl font-bold text-center mb-4 text-neutral-900">{title}</h1>
         <SocialLinks />
         <ImageCarousel />
-        <TwitchEmbed 
-          notificationsEnabled={notificationsEnabled}
-          toggleNotifications={toggleNotifications}
-        />
+        <TwitchEmbed />
       </div>
     </div>
   );
