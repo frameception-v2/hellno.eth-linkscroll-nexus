@@ -21,10 +21,9 @@ import { PROJECT_TITLE } from "~/lib/constants";
 import { SOCIAL_LINKS } from "~/lib/constants";
 
 function SocialLinks() {
-
   const handleLinkClick = useCallback((url: string) => {
     sdk.actions.openUrl(url);
-  }, []);
+  }, [RECENT_IMAGES.length]);
 
   return (
     <Card className="border-neutral-200 bg-white mb-4">
@@ -75,9 +74,10 @@ function ImageCarousel() {
             alt={`Recent post ${currentImage + 1}`}
             fill
             className="object-cover"
-            unoptimized // Since these are external images
+            unoptimized
             width={300}
             height={300}
+            priority
           />
         </div>
       </CardContent>
@@ -85,7 +85,10 @@ function ImageCarousel() {
   );
 }
 
-function TwitchEmbed() {
+function TwitchEmbed({ notificationsEnabled, toggleNotifications }: {
+  notificationsEnabled: boolean;
+  toggleNotifications: () => void;
+}) {
   const [showTwitch, setShowTwitch] = useState(false);
   const [isLive, setIsLive] = useState(false);
 
@@ -278,7 +281,10 @@ export default function Frame(
         <h1 className="text-2xl font-bold text-center mb-4 text-neutral-900">{title}</h1>
         <SocialLinks />
         <ImageCarousel />
-        <TwitchEmbed />
+        <TwitchEmbed 
+          notificationsEnabled={notificationsEnabled}
+          toggleNotifications={toggleNotifications}
+        />
       </div>
     </div>
   );
