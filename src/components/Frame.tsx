@@ -18,8 +18,9 @@ import { createStore } from "mipd";
 import { Label } from "~/components/ui/label";
 import { PROJECT_TITLE } from "~/lib/constants";
 
+import { SOCIAL_LINKS } from "~/lib/constants";
+
 function SocialLinks() {
-  import { SOCIAL_LINKS } from "~/lib/constants";
 
   const handleLinkClick = useCallback((url: string) => {
     sdk.actions.openUrl(url);
@@ -49,8 +50,9 @@ function SocialLinks() {
   );
 }
 
+import { RECENT_IMAGES } from "~/lib/constants";
+
 function ImageCarousel() {
-  import { RECENT_IMAGES } from "~/lib/constants";
   const [currentImage, setCurrentImage] = useState(0);
 
   useEffect(() => {
@@ -59,7 +61,7 @@ function ImageCarousel() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [RECENT_IMAGES.length]);
+  }, []);
 
   return (
     <Card className="border-neutral-200 bg-white mb-4">
@@ -74,6 +76,8 @@ function ImageCarousel() {
             fill
             className="object-cover"
             unoptimized // Since these are external images
+            width={300}
+            height={300}
           />
         </div>
       </CardContent>
