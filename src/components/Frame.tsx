@@ -20,6 +20,10 @@ import { PROJECT_TITLE } from "~/lib/constants";
 function SocialLinks() {
   const { SOCIAL_LINKS } = require("~/lib/constants");
 
+  const handleLinkClick = useCallback((url: string) => {
+    sdk.actions.openUrl(url);
+  }, []);
+
   return (
     <Card className="border-neutral-200 bg-white mb-4">
       <CardHeader>
@@ -30,16 +34,14 @@ function SocialLinks() {
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         {SOCIAL_LINKS.map((link, index) => (
-          <a
+          <PurpleButton
             key={index}
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 p-2 rounded-md hover:bg-neutral-100 transition-colors"
+            onClick={() => handleLinkClick(link.url)}
+            className="flex items-center gap-2 justify-start"
           >
             <span className="text-xl">{link.icon}</span>
             <span className="text-neutral-800">{link.name}</span>
-          </a>
+          </PurpleButton>
         ))}
       </CardContent>
     </Card>
@@ -78,30 +80,69 @@ function ImageCarousel() {
 
 function TwitchEmbed() {
   const [showTwitch, setShowTwitch] = useState(false);
+  const [isLive, setIsLive] = useState(false);
+
+  useEffect(() => {
+    const checkLiveStatus = async () => {
+      try {
+        const response = await fetch(
+          `https://api.twitch.tv/helix/streams?user_login=hellnotv`,
+          {
+            headers: {
+              'Client-ID': process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID || '',
+              'Authorization': `Bearer ${process.env.NEXT_PUBLIC_TWITCH_ACCESS_TOKEN}`
+            }
+          }
+        );
+        const data = await response.json();
+        setIsLive(data.data.length > 0);
+      } catch (error) {
+        console.error('Error checking Twitch status:', error);
+      }
+    };
+
+    checkLiveStatus();
+    const interval = setInterval(checkLiveStatus, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Card className="border-neutral-200 bg-white">
       <CardHeader>
         <CardTitle className="text-neutral-900">Twitch Stream</CardTitle>
         <CardDescription className="text-neutral-600">
-          {showTwitch ? "Currently live" : "Check if I'm live"}
+          {isLive ? "Currently live!" : "Currently offline"}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {showTwitch ? (
           <div className="relative aspect-video">
             <iframe
-              src="https://player.twitch.tv/?channel=hellnotv&parent=frames-v2.vercel.app"
+              src={`https://player.twitch.tv/?channel=hellnotv&parent=frames-v2.vercel.app&autoplay=${isLive}`}
               height="100%"
               width="100%"
               allowFullScreen
               className="rounded-lg"
             ></iframe>
+            <PurpleButton 
+              onClick={() => setShowTwitch(false)}
+              className="absolute top-2 right-2 bg-white/90 hover:bg-white text-neutral-900"
+            >
+              Hide
+            </PurpleButton>
           </div>
         ) : (
-          <PurpleButton onClick={() => setShowTwitch(true)}>
-            Show Twitch Player
-          </PurpleButton>
+          <div className="flex flex-col gap-2">
+            <PurpleButton onClick={() => setShowTwitch(true)}>
+              {isLive ? "Watch Live" : "Show Twitch Player"}
+            </PurpleButton>
+            <PurpleButton 
+              onClick={toggleNotifications}
+              variant={notificationsEnabled ? "default" : "outline"}
+            >
+              {notificationsEnabled ? "Notifications On" : "Enable Live Alerts"}
+            </PurpleButton>
+          </div>
         )}
       </CardContent>
     </Card>
@@ -111,6 +152,24 @@ function TwitchEmbed() {
 export default function Frame(
   { title }: { title?: string } = { title: PROJECT_TITLE }
 ) {
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  const toggleNotifications = useCallback(async () => {
+    try {
+      if (notificationsEnabled) {
+        await sdk.actions.disableNotifications();
+        setNotificationsEnabled(false);
+      } else {
+        await sdk.actions.enableNotifications({
+          title: "hellno.eth Live Alerts",
+          body: "Get notified when hellno.eth goes live on Twitch"
+        });
+        setNotificationsEnabled(true);
+      }
+    } catch (error) {
+      console.error('Error toggling notifications:', error);
+    }
+  }, [notificationsEnabled]);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<Context.FrameContext>();
 

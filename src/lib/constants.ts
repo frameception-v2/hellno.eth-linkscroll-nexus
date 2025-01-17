@@ -21,7 +21,9 @@ export const SOCIAL_LINKS = [
 ];
 
 export const RECENT_IMAGES = [
-  "https://i.imgur.com/abc123.jpg", // Replace with actual image URLs
+  "https://i.imgur.com/abc123.jpg", // Replace with actual image URLs from your posts
   "https://i.imgur.com/xyz456.jpg",
-  "https://i.imgur.com/def789.jpg"
+  "https://i.imgur.com/def789.jpg",
+  "https://i.imgur.com/livecoding.jpg", // Example from your live coding post
+  "https://i.imgur.com/frameception.jpg" // Example from frameception post
 ];
