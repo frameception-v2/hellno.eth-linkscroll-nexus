@@ -17,19 +17,92 @@ import { createStore } from "mipd";
 import { Label } from "~/components/ui/label";
 import { PROJECT_TITLE } from "~/lib/constants";
 
-function ExampleCard() {
+function SocialLinks() {
+  const { SOCIAL_LINKS } = require("~/lib/constants");
+
+  return (
+    <Card className="border-neutral-200 bg-white mb-4">
+      <CardHeader>
+        <CardTitle className="text-neutral-900">Social Links</CardTitle>
+        <CardDescription className="text-neutral-600">
+          Connect with hellno.eth
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-2">
+        {SOCIAL_LINKS.map((link, index) => (
+          <a
+            key={index}
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 p-2 rounded-md hover:bg-neutral-100 transition-colors"
+          >
+            <span className="text-xl">{link.icon}</span>
+            <span className="text-neutral-800">{link.name}</span>
+          </a>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ImageCarousel() {
+  const { RECENT_IMAGES } = require("~/lib/constants");
+  const [currentImage, setCurrentImage] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % RECENT_IMAGES.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <Card className="border-neutral-200 bg-white mb-4">
+      <CardHeader>
+        <CardTitle className="text-neutral-900">Recent Posts</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="relative aspect-square overflow-hidden rounded-lg">
+          <img
+            src={RECENT_IMAGES[currentImage]}
+            alt={`Recent post ${currentImage + 1}`}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function TwitchEmbed() {
+  const [showTwitch, setShowTwitch] = useState(false);
+
   return (
     <Card className="border-neutral-200 bg-white">
       <CardHeader>
-        <CardTitle className="text-neutral-900">Welcome to the Frame Template</CardTitle>
+        <CardTitle className="text-neutral-900">Twitch Stream</CardTitle>
         <CardDescription className="text-neutral-600">
-          This is an example card that you can customize or remove
+          {showTwitch ? "Currently live" : "Check if I'm live"}
         </CardDescription>
       </CardHeader>
-      <CardContent className="text-neutral-800">
-        <p>
-          Your frame content goes here. The text is intentionally dark to ensure good readability.
-        </p>
+      <CardContent>
+        {showTwitch ? (
+          <div className="relative aspect-video">
+            <iframe
+              src="https://player.twitch.tv/?channel=hellnotv&parent=frames-v2.vercel.app"
+              height="100%"
+              width="100%"
+              allowFullScreen
+              className="rounded-lg"
+            ></iframe>
+          </div>
+        ) : (
+          <PurpleButton onClick={() => setShowTwitch(true)}>
+            Show Twitch Player
+          </PurpleButton>
+        )}
       </CardContent>
     </Card>
   );
@@ -137,7 +210,9 @@ export default function Frame(
     >
       <div className="w-[300px] mx-auto py-2 px-2">
         <h1 className="text-2xl font-bold text-center mb-4 text-neutral-900">{title}</h1>
-        <ExampleCard />
+        <SocialLinks />
+        <ImageCarousel />
+        <TwitchEmbed />
       </div>
     </div>
   );
